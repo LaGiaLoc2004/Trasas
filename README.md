@@ -34,5 +34,3 @@ Mở file Python và cập nhật 3 đường dẫn này:
 ---
 
 **Lưu ý:** Nếu muốn đổi tài liệu mới, hãy xóa file `rag.db` để hệ thống cập nhật lại từ đầu.
-
-Bạn có cần mình hỗ trợ sửa lỗi đường dẫn nào không?
