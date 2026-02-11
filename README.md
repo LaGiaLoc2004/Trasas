@@ -1,36 +1,6 @@
-# Trasas
-Đây là bản rút gọn, tập trung vào các bước thực hiện nhanh:
-
----
-
-# 📖 Hướng dẫn chạy RAG System
-
-### 1. Cài đặt công cụ bắt buộc
-
-* **Tesseract OCR**: [Link tải](https://www.google.com/search?q=https://github.com/UB-Mannheim/tesseract/wiki)
-* **Poppler**: [Link tải](https://github.com/oschwartz10612/poppler-windows/releases) (Giải nén lấy thư mục `bin`).
-
-### 2. Cài đặt thư viện
-
-```bash
-pip install opencv-python pytesseract python-docx pandas pdf2image tiktoken langchain-text-splitters sentence-transformers faiss-cpu
-
-```
-
-### 3. Cấu hình Code
-
-Mở file Python và cập nhật 3 đường dẫn này:
-
-1. `TESSERACT_PATH`: Trỏ tới file `.exe` của Tesseract.
-2. `POPPLER_PATH`: Trỏ tới thư mục `bin` của Poppler.
-3. `file_path`: Trỏ tới file tài liệu bạn muốn dùng.
-
-### 4. Cách hoạt động
-
-1. **Chạy file:** `python your_file_name.py`.
-2. **Xử lý:** Chương trình tự động đọc file -> Chia nhỏ (Chunking) -> Chuyển thành vector (Embedding) -> Lưu vào `rag.db`.
-3. **Hỏi đáp:** Nhập câu hỏi trực tiếp vào terminal để tìm kiếm nội dung liên quan.
-
----
-
-**Lưu ý:** Nếu muốn đổi tài liệu mới, hãy xóa file `rag.db` để hệ thống cập nhật lại từ đầu.
+1. Cấu hình môi trường (.env)Đoạn mã của bạn sử dụng load_dotenv(). Hãy đảm bảo trong thư mục dự án của bạn đã có file tên là .env với nội dung sau:Đoạn mãGEMINI_API_KEY=your_api_key_here
+Lưu ý: Không nên chia sẻ file này lên GitHub để bảo mật API Key.
+2. Quy trình hoạt động của mã nguồnĐoạn mã hiện tại tuân thủ quy trình RAG tiêu chuẩn:Ingestion & OCR: Dùng pdf2image và pytesseract để quét văn bản từ Chapter1.pdf.Chunking: Chia văn bản thành các đoạn 500 tokens để Gemini dễ xử lý.Vector DB: Lưu trữ vector vào SQLite và dùng FAISS để tìm kiếm nhanh.Retrieval: Khi bạn hỏi, hệ thống tìm ra $k=2$ đoạn văn bản có nội dung liên quan nhất.Generation: Gửi 2 đoạn văn đó làm "ngữ cảnh" cho Gemini để sinh câu trả lời cuối cùng.
+3. Một số điểm cần tinh chỉnh nhỏĐể tránh các lỗi tiềm ẩn (bug) mà bạn đã gặp ở những phiên bản trước, bạn nên kiểm tra lại 2 vị trí sau:Lỗi biến t trong clean_text: Hãy đảm bảo biến t được gán giá trị chính xác.Nên sửa thành: t = unicodedata.normalize('NFC', str(text).replace('\x0c', ''))Tham số k: Trong hàm ask_me_with_llm, bạn đang lấy $k=2$. Nếu tài liệu của bạn rất dài và phức tạp, bạn có thể tăng lên $k=3$ hoặc $k=5$ để Gemini có thêm dữ liệu trả lời chính xác hơn.
+4. Cách chạy chương trìnhĐảm bảo đã cài đặt đầy đủ thư viện:Bashpip install google-generativeai python-dotenv sentence-transformers faiss-cpu pytesseract pdf2image
+Kiểm tra xem file Chapter1.pdf đã nằm đúng đường dẫn L:/Intern/trasas/folder_training/ chưa.Chạy lệnh: python interview.py.
