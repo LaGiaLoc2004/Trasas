@@ -1,6 +1,44 @@
-1. Cấu hình môi trường (.env)Đoạn mã của bạn sử dụng load_dotenv(). Hãy đảm bảo trong thư mục dự án của bạn đã có file tên là .env với nội dung sau:Đoạn mãGEMINI_API_KEY=your_api_key_here
-Lưu ý: Không nên chia sẻ file này lên GitHub để bảo mật API Key.
-2. Quy trình hoạt động của mã nguồnĐoạn mã hiện tại tuân thủ quy trình RAG tiêu chuẩn:Ingestion & OCR: Dùng pdf2image và pytesseract để quét văn bản từ Chapter1.pdf.Chunking: Chia văn bản thành các đoạn 500 tokens để Gemini dễ xử lý.Vector DB: Lưu trữ vector vào SQLite và dùng FAISS để tìm kiếm nhanh.Retrieval: Khi bạn hỏi, hệ thống tìm ra $k=2$ đoạn văn bản có nội dung liên quan nhất.Generation: Gửi 2 đoạn văn đó làm "ngữ cảnh" cho Gemini để sinh câu trả lời cuối cùng.
-3. Một số điểm cần tinh chỉnh nhỏĐể tránh các lỗi tiềm ẩn (bug) mà bạn đã gặp ở những phiên bản trước, bạn nên kiểm tra lại 2 vị trí sau:Lỗi biến t trong clean_text: Hãy đảm bảo biến t được gán giá trị chính xác.Nên sửa thành: t = unicodedata.normalize('NFC', str(text).replace('\x0c', ''))Tham số k: Trong hàm ask_me_with_llm, bạn đang lấy $k=2$. Nếu tài liệu của bạn rất dài và phức tạp, bạn có thể tăng lên $k=3$ hoặc $k=5$ để Gemini có thêm dữ liệu trả lời chính xác hơn.
-4. Cách chạy chương trìnhĐảm bảo đã cài đặt đầy đủ thư viện:Bashpip install google-generativeai python-dotenv sentence-transformers faiss-cpu pytesseract pdf2image
-Kiểm tra xem file Chapter1.pdf đã nằm đúng đường dẫn L:/Intern/trasas/folder_training/ chưa.Chạy lệnh: python interview.py.
+
+# 🤖 AI Recruitment Assistant (RAG with Gemini)
+
+Dự án này là một hệ thống **Retrieval-Augmented Generation (RAG)** cho phép người dùng đặt câu hỏi dựa trên nội dung của các tài liệu (PDF, Docx, Excel, Ảnh). Hệ thống sử dụng mô hình **Gemini 1.5 Flash** để sinh câu trả lời dựa trên ngữ cảnh được tìm thấy.
+
+## ✨ Tính năng chính
+
+* **Đa dạng nguồn dữ liệu**: Hỗ trợ đọc file PDF (OCR), Hình ảnh, Word (.docx), Excel (.xlsx) và Text (.txt).
+* **OCR Tiếng Việt**: Sử dụng Tesseract để nhận diện chữ viết tay hoặc chữ trong ảnh/PDF cực kỳ chính xác.
+* **Tìm kiếm ngữ nghĩa**: Sử dụng thư viện FAISS và Sentence Transformers (`paraphrase-multilingual-MiniLM-L12-v2`) để hiểu ý nghĩa câu hỏi thay vì chỉ khớp từ khóa.
+* **Sinh câu trả lời thông minh**: Kết hợp với Google Gemini AI để đưa ra câu trả lời tự nhiên, có trích dẫn nguồn cụ thể.
+
+## 🛠️ Yêu cầu hệ thống
+
+1. **Python 3.10+**
+2. **Tesseract OCR**: Cài đặt vào máy và trỏ đường dẫn trong code.
+3. **Poppler**: Cài đặt để hỗ trợ chuyển đổi PDF sang ảnh.
+
+## 🚀 Hướng dẫn cài đặt
+
+1. **Cài đặt các thư viện cần thiết:**
+```bash
+pip install opencv-python pytesseract python-docx pandas pdf2image tiktoken langchain-text-splitters sentence-transformers faiss-cpu google-generativeai python-dotenv
+
+```
+
+
+2. **Cấu hình API Key:**
+Tạo file `.env` tại thư mục gốc và dán API Key của bạn vào:
+```env
+GEMINI_API_KEY=your_api_key_here
+
+```
+
+
+3. **Cấu hình đường dẫn công cụ (interview.py):**
+Đảm bảo các biến `TESSERACT_PATH` và `POPPLER_PATH` trỏ đúng vào thư mục cài đặt trên máy của bạn.
+
+## 📖 Cách sử dụng
+
+1. Đưa tài liệu bạn muốn huấn luyện vào thư mục `folder_training`.
+2. Chạy chương trình: `python interview.py`.
+3. Hệ thống sẽ tiến hành đọc, chia nhỏ (chunking), tạo vector và lưu vào `rag.db`.
+4. Nhập câu hỏi tại Terminal để trò chuyện với tài liệu của bạn.
